@@ -3,11 +3,48 @@ import iconStar from './assets/icon-star.svg'
 import illustrationThankYou from './assets/illustration-thank-you.svg'
 import { useLocalStorage } from './hooks/useLocalStorage'
 
-const PreSelectContent = ({ submit }: { submit: (rating: number) => void }) => {
+const classnames = (...classes: Array<string | boolean | null | undefined>) =>
+  classes.filter(Boolean).join(' ')
+
+const Spinner = () => (
+  <svg
+    className="h-5 w-5 animate-spin text-white"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+)
+
+const PreSelectContent = ({
+  onSubmit,
+}: {
+  onSubmit: (rating: number) => void
+}) => {
+  const [isProcessing, setIsProcessing] = useState(false)
   const [rating, setRating] = useState(0)
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsProcessing(true)
+    await onSubmit(rating)
+  }
+
   return (
-    <div className="flex flex-col items-start gap-6">
+    <form className="flex flex-col items-start gap-6" onSubmit={handleSubmit}>
       <div className="rounded-full bg-slate-600 p-3">
         <img src={iconStar} alt="star" />
       </div>
@@ -43,16 +80,21 @@ const PreSelectContent = ({ submit }: { submit: (rating: number) => void }) => {
         ))}
       </ul>
       <button
-        className="w-full rounded-full bg-orange-500 px-6 py-3 uppercase text-white transition-colors hover:bg-white hover:text-orange-500"
-        onClick={() => {
-          if (rating > 0) {
-            submit(rating)
-          }
-        }}
+        className={classnames(
+          'w-full rounded-full bg-orange-500 px-6 py-3 uppercase text-white transition-colors',
+          !isProcessing && 'hover:bg-white hover:text-orange-500'
+        )}
       >
-        Submit
+        {isProcessing ? (
+          <div className="flex items-center justify-center gap-2">
+            <Spinner />
+            <small>Processing...</small>
+          </div>
+        ) : (
+          'Submit'
+        )}
       </button>
-    </div>
+    </form>
   )
 }
 
@@ -72,16 +114,23 @@ const PostSelectContent = ({ rating }: { rating: number }) => (
   </div>
 )
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 const RatingCard = () => {
   const [rating, setRating] = useLocalStorage('rating', 0)
   const hasUserRated = rating > 0
+
+  const onSubmit = async (internalRating: number) => {
+    await sleep(1000)
+    setRating(internalRating)
+  }
 
   return (
     <div className="rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 px-8 py-12 text-white shadow-lg">
       {hasUserRated ? (
         <PostSelectContent rating={rating} />
       ) : (
-        <PreSelectContent submit={setRating} />
+        <PreSelectContent onSubmit={onSubmit} />
       )}
     </div>
   )
