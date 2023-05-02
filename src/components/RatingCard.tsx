@@ -41,7 +41,7 @@ const PreSelectContent = ({
         {[...Array(5).keys()].map((n) => (
           <div
             key={n}
-            className="relative h-10 w-10 overflow-hidden rounded-full bg-white sm:h-12 sm:w-12"
+            className="relative h-10 w-10 overflow-hidden rounded-full sm:h-12 sm:w-12"
           >
             <input
               type="radio"
@@ -54,7 +54,7 @@ const PreSelectContent = ({
             />
             <label
               htmlFor={String(n + 1)}
-              className="absolute inset-0 flex cursor-pointer items-center justify-center text-black transition-colors peer-checked:bg-slate-500 peer-checked:text-white peer-hover:bg-orange-500 peer-hover:text-white"
+              className="absolute inset-0 flex cursor-pointer select-none items-center justify-center bg-slate-700 text-white transition-colors peer-checked:bg-slate-500 peer-checked:text-white peer-hover:bg-orange-500 peer-hover:text-white"
             >
               {n + 1}
             </label>
@@ -111,7 +111,7 @@ export const RatingCard = () => {
   }
 
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 px-8 py-12 text-white shadow-lg">
+    <div className="rounded-2xl bg-gradient-to-b from-slate-600 to-slate-800 px-8 py-12 text-white shadow-lg">
       <ResizablePanel>
         {hasUserRated ? (
           <PostSelectContent rating={rating} />
