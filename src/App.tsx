@@ -1,8 +1,13 @@
-import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useState } from 'react'
+import useMeasure from 'react-use-measure'
 import iconStar from './assets/icon-star.svg'
 import illustrationThankYou from './assets/illustration-thank-you.svg'
+import notificationSound from './assets/notification-sound.mp3'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { classnames, sleep } from './utils'
+
+const audio = new Audio(notificationSound)
 
 const Spinner = () => (
   <svg
@@ -27,6 +32,23 @@ const Spinner = () => (
   </svg>
 )
 
+const ResizablePanel = ({ children }: { children: React.ReactNode }) => {
+  const [ref, { height }] = useMeasure()
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="overflow-hidden"
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: height || 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+      >
+        <div ref={ref}>{children}</div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 const PreSelectContent = ({
   onSubmit,
 }: {
@@ -39,12 +61,14 @@ const PreSelectContent = ({
     event.preventDefault()
     setIsProcessing(true)
     await onSubmit(rating)
+    setIsProcessing(false)
+    audio.play()
   }
 
   return (
     <form className="flex flex-col items-start gap-6" onSubmit={handleSubmit}>
       <div className="rounded-full bg-slate-600 p-3">
-        <img src={iconStar} alt="star" />
+        <img src={iconStar} alt="star" width={17} height={16} />
       </div>
       <div>
         <h2 className="text-2xl">How did we do?</h2>
@@ -98,7 +122,12 @@ const PreSelectContent = ({
 
 const PostSelectContent = ({ rating }: { rating: number }) => (
   <div className="flex flex-col items-center gap-6">
-    <img src={illustrationThankYou} alt="thank you illustration" />
+    <img
+      src={illustrationThankYou}
+      alt="thank you illustration"
+      width={162}
+      height={108}
+    />
     <p className="rounded-full bg-slate-600 px-4 py-2 text-sm text-orange-500">
       You selected {rating} of 5
     </p>
@@ -123,11 +152,13 @@ const RatingCard = () => {
 
   return (
     <div className="rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 px-8 py-12 text-white shadow-lg">
-      {hasUserRated ? (
-        <PostSelectContent rating={rating} />
-      ) : (
-        <PreSelectContent onSubmit={onSubmit} />
-      )}
+      <ResizablePanel>
+        {hasUserRated ? (
+          <PostSelectContent rating={rating} />
+        ) : (
+          <PreSelectContent onSubmit={onSubmit} />
+        )}
+      </ResizablePanel>
     </div>
   )
 }
