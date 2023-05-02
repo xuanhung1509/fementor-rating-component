@@ -2,9 +2,7 @@ import { useState } from 'react'
 import iconStar from './assets/icon-star.svg'
 import illustrationThankYou from './assets/illustration-thank-you.svg'
 import { useLocalStorage } from './hooks/useLocalStorage'
-
-const classnames = (...classes: Array<string | boolean | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import { classnames, sleep } from './utils'
 
 const Spinner = () => (
   <svg
@@ -113,8 +111,6 @@ const PostSelectContent = ({ rating }: { rating: number }) => (
     </div>
   </div>
 )
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const RatingCard = () => {
   const [rating, setRating] = useLocalStorage('rating', 0)
